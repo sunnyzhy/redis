@@ -3,7 +3,7 @@
 # yum -y install redis
 ~~~
 
-# 配置
+# 开启守护进程模式
 ~~~
 # vim /etc/redis.conf
 daemonize yes
