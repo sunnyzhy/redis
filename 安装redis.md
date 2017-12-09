@@ -23,6 +23,8 @@ root     16074  3247  0 14:13 pts/2    00:00:00 grep --color=auto redis
 ~~~
 # vim /etc/redis.conf
 # bind 127.0.0.1
+
+protected-mode no
 ~~~
 
 # 重启
