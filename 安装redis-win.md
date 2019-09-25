@@ -1,5 +1,5 @@
 # 下载redis
-https://github.com/ServiceStack/redis-windows/tree/master/downloads
+https://github.com/microsoftarchive/redis/releases
 
 # 注册成windows服务
 解压之后，执行以下命令
