@@ -221,15 +221,6 @@ OK
 从链表的左边（头部）添加一个元素。
 
 ```
-> lpop mylist
-"2"
-
-> lpop mylist
-"1"
-
-> lpop mylist
-(nil)
-
 > lpush mylist 1
 (integer) 1
 
