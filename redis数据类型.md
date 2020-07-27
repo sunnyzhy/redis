@@ -216,3 +216,106 @@ OK
 (nil)
 ```
 
+# List
+## lpush
+从链表的左边（头部）添加一个元素。
+
+```
+> lpop mylist
+"2"
+
+> lpop mylist
+"1"
+
+> lpop mylist
+(nil)
+
+> lpush mylist 1
+(integer) 1
+
+> lpush mylist 2
+(integer) 2
+
+> lpush mylist 3 4 5
+(integer) 5
+```
+
+## lrange
+返回列表中指定区间内的元素。
+
+- start - 第一个元素的索引
+- end - 最后一个元素的索引
+   - -1：最后一个元素
+   - -2：倒数第二个元素
+
+```
+> lrange mylist 0 -1
+1) "5"
+2) "4"
+3) "3"
+4) "2"
+5) "1"
+
+> lrange mylist 0 -2
+1) "5"
+2) "4"
+3) "3"
+4) "2"
+```
+
+## rpush
+从链表的右边（尾部）添加一个元素。
+
+```
+> rpush mylist a
+(integer) 6
+
+> rpush mylist b
+(integer) 7
+
+> rpush mylist c d e
+(integer) 10
+
+> lrange mylist 0 -1
+ 1) "5"
+ 2) "4"
+ 3) "3"
+ 4) "2"
+ 5) "1"
+ 6) "a"
+ 7) "b"
+ 8) "c"
+ 9) "d"
+10) "e"
+```
+
+删除 key
+```
+> del mykey
+```
+
+## lpop / rpop
+- lpop - 从链表的左边（头部）删除一个元素
+- rpop - 从链表的右边（尾部）删除一个元素
+
+```
+> rpush mylist a b c
+(integer) 3
+
+> rpop mylist
+"c"
+
+> rpop mylist
+"b"
+
+> rpop mylist
+"a"
+
+> rpop mylist
+(nil)
+```
+
+如果链表里没有元素可以被删除的时候，redis 返回 NULL。
+
+
+
