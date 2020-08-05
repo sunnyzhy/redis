@@ -1,117 +1,164 @@
 # String
-## get / set
+## SET key value [EX seconds] [PX milliseconds] [NX|XX]
+如果 key 已经保存了一个值，那么这个操作会直接覆盖原来的值，并且忽略原始类型。
 
-- 当 key 不存在时，设置新的 key/value
-- 当 key 存在时，覆盖原有的 key/value
+当set命令执行成功之后，之前设置的过期时间都将失效。
+
+### 选项
+
+- EX seconds – 设置键key的过期时间，单位时秒
+- PX milliseconds – 设置键key的过期时间，单位时毫秒
+- NX – 只有键key不存在的时候才会设置key的值
+- XX – 只有键key存在的时候才会设置key的值
+
+注意: 由于SET命令加上选项已经可以完全取代SETNX, SETEX, PSETEX的功能，所以在将来的版本中，redis可能会不推荐使用并且最终抛弃这几个命令。
 
 ```
-> set mykey somevalue
+> set mykey hello
 OK
 
 > get mykey
-"somevalue"
+"hello"
 
-> set mykey newvalue
-OK
-
-> get mykey
-"newvalue"
-```
-
-删除 key
-```
-> del mykey
-```
-
-## nx | xx
-
-- nx – 仅当key不存在时，set才生效
-- xx – 仅当key存在时，set才生效
-
-### nx
-```
-> set mykey somevalue
-OK
-
-> get mykey
-"somevalue"
-
-> set mykey newvalue nx
+> set mykey world nx
 (nil)
 
-> get newkey
-(nil)
-
-> set newkey newvalue nx
-OK
-
-> get newkey
-"newvalue"
-```
-
-删除 key
-```
-> del mykey newkey
-```
-
-### xx
-```
-> set mykey somevalue xx
-(nil)
-
-> set mykey somevalue
+> set mykey world xx
 OK
 
 > get mykey
-"somevalue"
+"world"
 
-> set mykey newvalue xx
+> set myotherkey world xx
+(nil)
+
+> set myotherkey world nx
+OK
+
+> get myotherkey
+"world"
+
+> set mykey hello ex 10
+OK
+
+> ttl mykey
+(integer) 7
+
+> ttl mykey
+(integer) 1
+
+> ttl mykey
+(integer) -2
+
+> get mykey
+(nil)
+```
+
+## GET key
+返回key的value。如果key不存在，返回特殊值nil。如果key的value不是string，就返回错误，因为GET只处理string类型的values。
+
+## INCR key
+对存储在指定key的数值执行**原子**的加1操作。
+
+如果指定的key不存在，那么在执行incr操作之前，会先将它的值设定为0。
+
+如果指定的key中存储的值不是字符串类型（fix：）或者存储的字符串类型不能表示为一个整数，那么执行这个命令时服务器会返回一个错误(eq:(error) ERR value is not an integer or out of range)。
+
+**这个操作仅限于64位的有符号整型数据。**
+
+注意: 由于redis并没有一个明确的类型来表示整型数据，所以这个操作是一个字符串操作。
+
+执行这个操作的时候，key对应存储的字符串被解析为10进制的64位有符号整型数据。
+
+```
+> set mykey 10
+OK
+
+> incr mykey
+(integer) 11
+
+> get mykey
+"11"
+
+> set mykey a
+OK
+
+> incr mykey
+(error) ERR value is not an integer or out of range
+```
+
+## INCRBY key increment
+将key对应的数字加decrement。如果key不存在，操作之前，key就会被置为0。如果key的value类型错误或者是个不能表示成数字的字符串，就返回错误。这个操作最多支持64位有符号的正型数字。
+
+```
+> set mykey 10
+OK
+
+> incrby mykey 5
+(integer) 15
+```
+
+## INCRBYFLOAT key increment
+通过指定浮点数key来增长浮点数(存放于string中)的值. 当键不存在时,先将其值设为0再操作.下面任一情况都会返回错误:
+
+- key 包含非法值(不是一个string).
+- 当前的key或者相加后的值不能解析为一个双精度的浮点值.(超出精度范围了)
+
+```
+> set mykey 10.50
+OK
+
+> incrbyfloat mykey 0.1
+"10.6"
+
+> get mykey
+"10.6"
+
+> set mykey 5.0e3
 OK
 
 > get mykey
-"newvalue"
+"5.0e3"
+
+> incrbyfloat mykey 2.0e2
+"5200"
+
+> get mykey
+"5200"
 ```
 
-删除 key
-```
-> del mykey
-```
-
-## incr / incrby / decr / decrby
-
-incr / incrby / decr / decrby 只能作用于 integer 数据。
-
-- incr - 递增 1
-- incrby - 根据指定的步长递增
-- decr - 递减 1
-- decrby - 根据指定的步长递减
+## DECR key
+对key对应的数字做减1操作。如果key不存在，那么在操作之前，这个key对应的值会被置为0。如果key有一个错误类型的value或者是一个不能表示成数字的字符串，就返回错误。这个操作最大支持在64位有符号的整型数字。
 
 ```
-> set counter 100
+> set mykey 10
 OK
 
-> incr counter
-(integer) 101
+> decr mykey
+(integer) 9
 
-> incr counter
-(integer) 102
+> get mykey
+"9"
 
-> incrby counter 50
-(integer) 152
+> set mykey 234293482390480948029348230948
+OK
 
-> decr counter
-(integer) 151
-
-> decr counter
-(integer) 150
-
-> decrby counter 50
-(integer) 100
+> decr mykey
+(error) ERR value is not an integer or out of range
 ```
 
-删除 key
+## DECRBY key decrement
+将key对应的数字减decrement。如果key不存在，操作之前，key就会被置为0。如果key的value类型错误或者是个不能表示成数字的字符串，就返回错误。这个操作最多支持64位有符号的正型数字。
+
 ```
-> del counter
+> set mykey 10
+OK
+
+> decrby mykey 5
+(integer) 5
+
+> get mykey
+"5"
 ```
 
 ## mset / mget
