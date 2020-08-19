@@ -1,61 +1,77 @@
 # String
-## SET key value [EX seconds] [PX milliseconds] [NX|XX]
-如果 key 已经保存了一个值，那么这个操作会直接覆盖原来的值，并且忽略原始类型。
-
-当set命令执行成功之后，之前设置的过期时间都将失效。
-
-### 选项
-
-- EX seconds – 设置键key的过期时间，单位时秒
-- PX milliseconds – 设置键key的过期时间，单位时毫秒
-- NX – 只有键key不存在的时候才会设置key的值
-- XX – 只有键key存在的时候才会设置key的值
-
-注意: 由于SET命令加上选项已经可以完全取代SETNX, SETEX, PSETEX的功能，所以在将来的版本中，redis可能会不推荐使用并且最终抛弃这几个命令。
+## DECR key
+对key对应的数字做减1操作。如果key不存在，那么在操作之前，这个key对应的值会被置为0。如果key有一个错误类型的value或者是一个不能表示成数字的字符串，就返回错误。这个操作最大支持在64位有符号的整型数字。
 
 ```
-> set mykey hello
+> set mykey 10
 OK
+
+> decr mykey
+(integer) 9
 
 > get mykey
-"hello"
+"9"
 
-> set mykey world nx
-(nil)
-
-> set mykey world xx
+> set mykey 234293482390480948029348230948
 OK
+
+> decr mykey
+(error) ERR value is not an integer or out of range
+```
+
+## DECRBY key decrement
+将key对应的数字减decrement。如果key不存在，操作之前，key就会被置为0。如果key的value类型错误或者是个不能表示成数字的字符串，就返回错误。这个操作最多支持64位有符号的正型数字。
+
+```
+> set mykey 10
+OK
+
+> decrby mykey 5
+(integer) 5
 
 > get mykey
-"world"
-
-> set myotherkey world xx
-(nil)
-
-> set myotherkey world nx
-OK
-
-> get myotherkey
-"world"
-
-> set mykey hello ex 10
-OK
-
-> ttl mykey
-(integer) 7
-
-> ttl mykey
-(integer) 1
-
-> ttl mykey
-(integer) -2
-
-> get mykey
-(nil)
+"5"
 ```
 
 ## GET key
 返回key的value。如果key不存在，返回特殊值nil。如果key的value不是string，就返回错误，因为GET只处理string类型的values。
+
+## GETRANGE key start end
+在小于2.0的Redis版本中叫SUBSTR。 返回key对应的字符串value的子串，这个子串是由start和end位移决定的（两者都在string内）。可以用负的位移来表示从string尾部开始数的下标。所以-1就是最后一个字符，-2就是倒数第二个，以此类推。
+
+```
+> set mykey "This is a string"
+OK
+
+> getrange mykey 0 3
+"This"
+
+> getrange mykey -3 -1
+"ing"
+
+> getrange mykey 0 -1
+"This is a string"
+
+> getrange mykey 10 100
+"string"
+```
+
+## GETSET key value
+把key对应的值修改为value，并且返回原来key对应的value。
+
+```
+> incr mycounter
+(integer) 1
+
+> get mycounter
+"1"
+
+> getset mycounter 0
+"1"
+
+> get mycounter
+"0"
+```
 
 ## INCR key
 对存储在指定key的数值执行**原子**的加1操作。
@@ -127,38 +143,75 @@ OK
 "5200"
 ```
 
-## DECR key
-对key对应的数字做减1操作。如果key不存在，那么在操作之前，这个key对应的值会被置为0。如果key有一个错误类型的value或者是一个不能表示成数字的字符串，就返回错误。这个操作最大支持在64位有符号的整型数字。
+## MGET key [key ...]
+返回所有指定的key的value。对于每个不对应string或者不存在的key，都返回特殊值nil。
 
 ```
-> set mykey 10
+> set key1 hello
 OK
 
-> decr mykey
-(integer) 9
+> set key2 world
+OK
+
+> mget key1 key2 nonexisting
+1) "hello"
+2) "world"
+3) (nil)
+```
+
+## SET key value [EX seconds] [PX milliseconds] [NX|XX]
+如果 key 已经保存了一个值，那么这个操作会直接覆盖原来的值，并且忽略原始类型。
+
+当set命令执行成功之后，之前设置的过期时间都将失效。
+
+### 选项
+
+- EX seconds – 设置键key的过期时间，单位时秒
+- PX milliseconds – 设置键key的过期时间，单位时毫秒
+- NX – 只有键key不存在的时候才会设置key的值
+- XX – 只有键key存在的时候才会设置key的值
+
+注意: 由于SET命令加上选项已经可以完全取代SETNX, SETEX, PSETEX的功能，所以在将来的版本中，redis可能会不推荐使用并且最终抛弃这几个命令。
+
+```
+> set mykey hello
+OK
 
 > get mykey
-"9"
+"hello"
 
-> set mykey 234293482390480948029348230948
+> set mykey world nx
+(nil)
+
+> set mykey world xx
 OK
-
-> decr mykey
-(error) ERR value is not an integer or out of range
-```
-
-## DECRBY key decrement
-将key对应的数字减decrement。如果key不存在，操作之前，key就会被置为0。如果key的value类型错误或者是个不能表示成数字的字符串，就返回错误。这个操作最多支持64位有符号的正型数字。
-
-```
-> set mykey 10
-OK
-
-> decrby mykey 5
-(integer) 5
 
 > get mykey
-"5"
+"world"
+
+> set myotherkey world xx
+(nil)
+
+> set myotherkey world nx
+OK
+
+> get myotherkey
+"world"
+
+> set mykey hello ex 10
+OK
+
+> ttl mykey
+(integer) 7
+
+> ttl mykey
+(integer) 1
+
+> ttl mykey
+(integer) -2
+
+> get mykey
+(nil)
 ```
 
 ## mset / mget
