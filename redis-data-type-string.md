@@ -1,9 +1,32 @@
 # String
+## APPEND key value
+如果 key 已经存在，并且值为字符串，那么这个命令会把 value 追加到原来值（value）的结尾。 如果 key 不存在，那么它将首先创建一个空字符串的key，再执行追加操作，这种情况 APPEND 将类似于 SET 操作。
+
+### 返回值
+返回append后字符串值（value）的长度。
+
+```
+> exists mykey
+(integer) 0
+
+> append mykey "Hello"
+(integer) 5
+
+> append mykey " World"
+(integer) 11
+
+> get mykey
+"Hello World"
+```
+
 ## DECR key
 对key对应的数字做减1操作。如果key不存在，那么在操作之前，这个key对应的值会被置为0。如果key有一个错误类型的value或者是一个不能表示成数字的字符串，就返回错误。这个操作最大支持在64位有符号的整型数字。
 
+### 返回值
+减小之后的value
+
 ```
-> set mykey 10
+> set mykey "10"
 OK
 
 > decr mykey
@@ -12,7 +35,7 @@ OK
 > get mykey
 "9"
 
-> set mykey 234293482390480948029348230948
+> set mykey "234293482390480948029348230948"
 OK
 
 > decr mykey
@@ -22,8 +45,11 @@ OK
 ## DECRBY key decrement
 将key对应的数字减decrement。如果key不存在，操作之前，key就会被置为0。如果key的value类型错误或者是个不能表示成数字的字符串，就返回错误。这个操作最多支持64位有符号的正型数字。
 
+### 返回值
+减少之后的value值。
+
 ```
-> set mykey 10
+> set mykey "10"
 OK
 
 > decrby mykey 5
@@ -35,6 +61,9 @@ OK
 
 ## GET key
 返回key的value。如果key不存在，返回特殊值nil。如果key的value不是string，就返回错误，因为GET只处理string类型的values。
+
+### 返回值
+key对应的value，或者nil（key不存在时）。
 
 ## GETRANGE key start end
 在小于2.0的Redis版本中叫SUBSTR。 返回key对应的字符串value的子串，这个子串是由start和end位移决定的（两者都在string内）。可以用负的位移来表示从string尾部开始数的下标。所以-1就是最后一个字符，-2就是倒数第二个，以此类推。
@@ -59,6 +88,9 @@ OK
 ## GETSET key value
 把key对应的值修改为value，并且返回原来key对应的value。
 
+### 返回值
+返回之前的旧值，如果之前Key不存在将返回nil。
+
 ```
 > incr mycounter
 (integer) 1
@@ -66,7 +98,7 @@ OK
 > get mycounter
 "1"
 
-> getset mycounter 0
+> getset mycounter "0"
 "1"
 
 > get mycounter
@@ -86,8 +118,11 @@ OK
 
 执行这个操作的时候，key对应存储的字符串被解析为10进制的64位有符号整型数据。
 
+### 返回值
+执行递增操作后key对应的值。
+
 ```
-> set mykey 10
+> set mykey "10"
 OK
 
 > incr mykey
@@ -96,7 +131,7 @@ OK
 > get mykey
 "11"
 
-> set mykey a
+> set mykey "a"
 OK
 
 > incr mykey
@@ -106,8 +141,11 @@ OK
 ## INCRBY key increment
 将key对应的数字加decrement。如果key不存在，操作之前，key就会被置为0。如果key的value类型错误或者是个不能表示成数字的字符串，就返回错误。这个操作最多支持64位有符号的正型数字。
 
+### 返回值
+增加之后的value值。
+
 ```
-> set mykey 10
+> set mykey "10"
 OK
 
 > incrby mykey 5
@@ -119,6 +157,9 @@ OK
 
 - key 包含非法值(不是一个string).
 - 当前的key或者相加后的值不能解析为一个双精度的浮点值.(超出精度范围了)
+
+### 返回值
+当前key增加increment后的值。
 
 ```
 > set mykey 10.50
@@ -146,16 +187,66 @@ OK
 ## MGET key [key ...]
 返回所有指定的key的value。对于每个不对应string或者不存在的key，都返回特殊值nil。
 
+### 返回值
+总是OK，因为MSET不会失败。
+
 ```
-> set key1 hello
+> set key1 "hello"
 OK
 
-> set key2 world
+> set key2 "world"
 OK
 
 > mget key1 key2 nonexisting
 1) "hello"
 2) "world"
+3) (nil)
+```
+
+## MSET key value [key value ...]
+批量替换指定key的value。MSET会用新的value替换已经存在的value，就像普通的SET命令一样。如果你不想覆盖已经存在的values，请参看命令MSETNX。
+
+***MSET是原子的，所以所有给定的keys是一次性set的。***
+
+```
+> mset key1 "Hello" key2 "World"
+OK
+
+> get key1
+"Hello"
+
+> get key2
+"World"
+```
+
+## MSETNX key value [key value ...]
+批量替换指定key的value。只要有一个key已经存在，MSETNX一个操作都不会执行。 由于这种特性，MSETNX可以实现要么所有的操作都成功，要么一个都不执行，这样可以用来设置不同的key，来表示一个唯一的对象的不同字段。
+
+***MSETNX是原子的，所以所有给定的keys是一次性set的。***
+
+### 返回值
+
+- 1: 如果所有的key被set
+- 0: 如果没有key被set(至少其中有一个key是存在的)
+
+```
+> mget key1 key2
+1) (nil)
+2) (nil)
+
+> msetnx key1 "Hello" key2 "three"
+(integer) 1
+
+> mget key1 key2
+1) "Hello"
+2) "three"
+
+> msetnx key2 "three" key3 "world"
+(integer) 0
+
+> mget key1 key2 key3
+1) "Hello"
+2) "three"
 3) (nil)
 ```
 
@@ -173,32 +264,35 @@ OK
 
 注意: 由于SET命令加上选项已经可以完全取代SETNX, SETEX, PSETEX的功能，所以在将来的版本中，redis可能会不推荐使用并且最终抛弃这几个命令。
 
+### 返回值
+如果SET命令正常执行那么回返回OK，否则如果加了NX 或者 XX选项，但是没有设置条件。那么会返回nil。
+
 ```
-> set mykey hello
+> set mykey "hello"
 OK
 
 > get mykey
 "hello"
 
-> set mykey world nx
+> set mykey "world" nx
 (nil)
 
-> set mykey world xx
+> set mykey "world" xx
 OK
 
 > get mykey
 "world"
 
-> set myotherkey world xx
+> set myotherkey "world" xx
 (nil)
 
-> set myotherkey world nx
+> set myotherkey "world" nx
 OK
 
 > get myotherkey
 "world"
 
-> set mykey hello ex 10
+> set mykey "hello" ex 10
 OK
 
 > ttl mykey
@@ -214,31 +308,53 @@ OK
 (nil)
 ```
 
-## mset / mget
+## SETRANGE key offset value
+这个命令的作用是覆盖key对应的string的一部分，从指定的offset处开始，覆盖value的长度。如果offset比当前key对应string还要长，那这个string后面就补0以达到offset。不存在的keys被认为是空字符串，所以这个命令可以确保key有一个足够大的字符串，能在offset处设置value。
 
-- mset - 同时设置一个或多个 key-value
-- mget - 同时获取多个 key 的值
+注意，offset最大可以是229-1(536870911),因为redis字符串限制在512M大小。如果你需要超过这个大小，你可以用多个keys。
+
+### 返回值
+该命令修改后的字符串长度
 
 ```
-> mset a 10 b 20 c 30
+> set key1 "Hello World"
 OK
 
-> mget a b c
-1) "10"
-2) "20"
-3) "30"
+> setrange key1 6 "Redis"
+(integer) 11
+
+> get key1
+"Hello Redis"
+
+> setrange key2 6 "Redis"
+(integer) 11
+
+> get key2
+"\x00\x00\x00\x00\x00\x00Redis"
 ```
 
-删除 key
+## STRLEN key
+返回key的string类型value的长度。如果key对应的非string类型，就返回错误。
+
+### 返回值
+key对应的字符串value的长度，或者0（key不存在）
+
 ```
-> del a b c
+> set mykey "Hello World"
+OK
+
+> strlen mykey
+(integer) 11
+
+> strlen nonexisting
+(integer) 0
 ```
 
-## exists
+## exists key [key ...]
 判断 key 是否存在。
 
 ```
-> set mykey hello
+> set mykey "hello"
 OK
 
 > exists mykey
@@ -251,11 +367,11 @@ OK
 (integer) 0
 ```
 
-## type
+## type key
 判断指定的 key 所存储的 value 的数据类型。
 
 ```
-> set mykey x
+> set mykey "x"
 OK
 
 > type mykey
@@ -268,16 +384,11 @@ string
 none
 ```
 
-删除 key
-```
-> del mykey
-```
-
-## expire
+## expire key seconds
 设置 key 的有效期。
 
 ```
-> set key some-value
+> set key "some-value"
 OK
 
 > expire key 5
@@ -290,11 +401,11 @@ OK
 (nil)
 ```
 
-## ttl
+## ttl key
 剩余的有效期时长。
 
 ```
-> set key 100 ex 10
+> set key "100" ex 10
 OK
 
 > ttl key
