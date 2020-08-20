@@ -5,6 +5,7 @@
 ### 返回值
 返回append后字符串值（value）的长度。
 
+### 示例
 ```
 > exists mykey
 (integer) 0
@@ -25,6 +26,7 @@
 ### 返回值
 减小之后的value
 
+### 示例
 ```
 > set mykey "10"
 OK
@@ -48,6 +50,7 @@ OK
 ### 返回值
 减少之后的value值。
 
+### 示例
 ```
 > set mykey "10"
 OK
@@ -68,6 +71,7 @@ key对应的value，或者nil（key不存在时）。
 ## GETRANGE key start end
 在小于2.0的Redis版本中叫SUBSTR。 返回key对应的字符串value的子串，这个子串是由start和end位移决定的（两者都在string内）。可以用负的位移来表示从string尾部开始数的下标。所以-1就是最后一个字符，-2就是倒数第二个，以此类推。
 
+### 示例
 ```
 > set mykey "This is a string"
 OK
@@ -91,6 +95,7 @@ OK
 ### 返回值
 返回之前的旧值，如果之前Key不存在将返回nil。
 
+### 示例
 ```
 > incr mycounter
 (integer) 1
@@ -121,6 +126,7 @@ OK
 ### 返回值
 执行递增操作后key对应的值。
 
+### 示例
 ```
 > set mykey "10"
 OK
@@ -144,6 +150,7 @@ OK
 ### 返回值
 增加之后的value值。
 
+### 示例
 ```
 > set mykey "10"
 OK
@@ -161,6 +168,7 @@ OK
 ### 返回值
 当前key增加increment后的值。
 
+### 示例
 ```
 > set mykey 10.50
 OK
@@ -188,8 +196,9 @@ OK
 返回所有指定的key的value。对于每个不对应string或者不存在的key，都返回特殊值nil。
 
 ### 返回值
-总是OK，因为MSET不会失败。
+指定的key对应的values的list。
 
+### 示例
 ```
 > set key1 "hello"
 OK
@@ -208,6 +217,10 @@ OK
 
 ***MSET是原子的，所以所有给定的keys是一次性set的。***
 
+### 返回值
+总是OK，因为MSET不会失败。
+
+### 示例
 ```
 > mset key1 "Hello" key2 "World"
 OK
@@ -229,6 +242,7 @@ OK
 - 1: 如果所有的key被set
 - 0: 如果没有key被set(至少其中有一个key是存在的)
 
+### 示例
 ```
 > mget key1 key2
 1) (nil)
@@ -267,6 +281,7 @@ OK
 ### 返回值
 如果SET命令正常执行那么回返回OK，否则如果加了NX 或者 XX选项，但是没有设置条件。那么会返回nil。
 
+### 示例
 ```
 > set mykey "hello"
 OK
@@ -316,6 +331,7 @@ OK
 ### 返回值
 该命令修改后的字符串长度
 
+### 示例
 ```
 > set key1 "Hello World"
 OK
@@ -339,6 +355,7 @@ OK
 ### 返回值
 key对应的字符串value的长度，或者0（key不存在）
 
+### 示例
 ```
 > set mykey "Hello World"
 OK
@@ -353,6 +370,7 @@ OK
 ## exists key [key ...]
 判断 key 是否存在。
 
+### 示例
 ```
 > set mykey "hello"
 OK
@@ -370,6 +388,7 @@ OK
 ## type key
 判断指定的 key 所存储的 value 的数据类型。
 
+### 示例
 ```
 > set mykey "x"
 OK
@@ -387,6 +406,7 @@ none
 ## expire key seconds
 设置 key 的有效期。
 
+### 示例
 ```
 > set key "some-value"
 OK
@@ -404,6 +424,7 @@ OK
 ## ttl key
 剩余的有效期时长。
 
+### 示例
 ```
 > set key "100" ex 10
 OK
