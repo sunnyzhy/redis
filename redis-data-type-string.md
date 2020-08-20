@@ -3,7 +3,7 @@
 如果 key 已经存在，并且值为字符串，那么这个命令会把 value 追加到原来值（value）的结尾。 如果 key 不存在，那么它将首先创建一个空字符串的key，再执行追加操作，这种情况 APPEND 将类似于 SET 操作。
 
 ### 返回值
-返回append后字符串值（value）的长度。
+Integer reply：返回append后字符串值（value）的长度。
 
 ### 示例
 ```
@@ -24,7 +24,7 @@
 对key对应的数字做减1操作。如果key不存在，那么在操作之前，这个key对应的值会被置为0。如果key有一个错误类型的value或者是一个不能表示成数字的字符串，就返回错误。这个操作最大支持在64位有符号的整型数字。
 
 ### 返回值
-减小之后的value
+数字：减小之后的value
 
 ### 示例
 ```
@@ -48,7 +48,7 @@ OK
 将key对应的数字减decrement。如果key不存在，操作之前，key就会被置为0。如果key的value类型错误或者是个不能表示成数字的字符串，就返回错误。这个操作最多支持64位有符号的正型数字。
 
 ### 返回值
-减少之后的value值。
+返回一个数字：减少之后的value值。
 
 ### 示例
 ```
@@ -66,10 +66,13 @@ OK
 返回key的value。如果key不存在，返回特殊值nil。如果key的value不是string，就返回错误，因为GET只处理string类型的values。
 
 ### 返回值
-key对应的value，或者nil（key不存在时）。
+simple-string-reply:key对应的value，或者nil（key不存在时）。
 
 ## GETRANGE key start end
 在小于2.0的Redis版本中叫SUBSTR。 返回key对应的字符串value的子串，这个子串是由start和end位移决定的（两者都在string内）。可以用负的位移来表示从string尾部开始数的下标。所以-1就是最后一个字符，-2就是倒数第二个，以此类推。
+
+### 返回值
+bulk-reply
 
 ### 示例
 ```
@@ -93,7 +96,7 @@ OK
 把key对应的值修改为value，并且返回原来key对应的value。
 
 ### 返回值
-返回之前的旧值，如果之前Key不存在将返回nil。
+bulk-string-reply: 返回之前的旧值，如果之前Key不存在将返回nil。
 
 ### 示例
 ```
@@ -127,7 +130,7 @@ GETSET可以和INCR一起使用实现支持重置的计数功能。举个例子�
 执行这个操作的时候，key对应存储的字符串被解析为10进制的64位有符号整型数据。
 
 ### 返回值
-执行递增操作后key对应的值。
+integer-reply:执行递增操作后key对应的值。
 
 ### 示例
 ```
@@ -176,7 +179,7 @@ web应用只需要通过拼接用户id和代表当前时间的字符串作为key
 将key对应的数字加decrement。如果key不存在，操作之前，key就会被置为0。如果key的value类型错误或者是个不能表示成数字的字符串，就返回错误。这个操作最多支持64位有符号的正型数字。
 
 ### 返回值
-增加之后的value值。
+integer-reply： 增加之后的value值。
 
 ### 示例
 ```
@@ -194,7 +197,7 @@ OK
 - 当前的key或者相加后的值不能解析为一个双精度的浮点值.(超出精度范围了)
 
 ### 返回值
-当前key增加increment后的值。
+Bulk-string-reply: 当前key增加increment后的值。
 
 ### 示例
 ```
@@ -224,7 +227,7 @@ OK
 返回所有指定的key的value。对于每个不对应string或者不存在的key，都返回特殊值nil。
 
 ### 返回值
-指定的key对应的values的list。
+array-reply: 指定的key对应的values的list。
 
 ### 示例
 ```
@@ -246,7 +249,7 @@ OK
 ***MSET是原子的，所以所有给定的keys是一次性set的。***
 
 ### 返回值
-总是OK，因为MSET不会失败。
+simple-string-reply：总是OK，因为MSET不会失败。
 
 ### 示例
 ```
@@ -266,7 +269,7 @@ OK
 ***MSETNX是原子的，所以所有给定的keys是一次性set的。***
 
 ### 返回值
-
+integer-reply，只有以下两种值：
 - 1: 如果所有的key被set
 - 0: 如果没有key被set(至少其中有一个key是存在的)
 
@@ -307,7 +310,7 @@ OK
 注意: 由于SET命令加上选项已经可以完全取代SETNX, SETEX, PSETEX的功能，所以在将来的版本中，redis可能会不推荐使用并且最终抛弃这几个命令。
 
 ### 返回值
-如果SET命令正常执行那么回返回OK，否则如果加了NX 或者 XX选项，但是没有设置条件。那么会返回nil。
+simple-string-reply:如果SET命令正常执行那么回返回OK，否则如果加了NX 或者 XX选项，但是没有设置条件。那么会返回nil。
 
 ### 示例
 ```
@@ -357,7 +360,7 @@ OK
 注意，offset最大可以是229-1(536870911),因为redis字符串限制在512M大小。如果你需要超过这个大小，你可以用多个keys。
 
 ### 返回值
-该命令修改后的字符串长度
+integer-reply：该命令修改后的字符串长度
 
 ### 示例
 ```
@@ -381,7 +384,7 @@ OK
 返回key的string类型value的长度。如果key对应的非string类型，就返回错误。
 
 ### 返回值
-key对应的字符串value的长度，或者0（key不存在）
+integer-reply：key对应的字符串value的长度，或者0（key不存在）
 
 ### 示例
 ```
