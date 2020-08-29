@@ -292,3 +292,31 @@ array-reply：哈希集中的值的列表，当 key 指定的哈希集不存在�
 1) "Hello"
 2) "World"
 ```
+
+## java示例
+```java
+@Test
+void scan() {
+    Set<String> keySet = hashScan("a:b:*", 1000);
+    System.out.println(keySet);
+}
+
+@Autowired
+private RedisTemplate<String, Object> redisTemplate;
+
+public Set<String> hashScan(String patternKey, long count) {
+    ScanOptions options = ScanOptions.scanOptions().match(patternKey).count(count).build();
+    Set<String> keySet = redisTemplate.execute(new RedisCallback<Set<String>>() {
+        @Override
+        public Set<String> doInRedis(RedisConnection connection) throws DataAccessException {
+            Set<String> binaryKeys = new HashSet<>();
+            Cursor<byte[]> cursor = connection.scan(options);
+            while (cursor.hasNext()) {
+                binaryKeys.add(new String(cursor.next()));
+            }
+            return binaryKeys;
+        }
+    });
+    return keySet;
+}
+```
