@@ -18,3 +18,8 @@ blocked_clients:0
 1) "maxclients"
 2) "10000"
 ```
+
+## 清空数据库
+
+- ```flushdb```: 删除当前(或指定)数据库中的所有 key
+- ```flushall```: 删除所有数据库的所有 key
