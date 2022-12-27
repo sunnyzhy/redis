@@ -2,49 +2,121 @@
 
 ## 安装
 
-```bash
-# yum -y install redis
-```
-
-## 开启守护进程模式
+[redis](https://redis.io/download/ 'redis')
 
 ```bash
-# vim /etc/redis/6379.conf
-daemonize yes
+wget https://github.com/redis/redis/archive/7.0.7.tar.gz -P /usr/local/
+
+cd /usr/local
+
+tar -zxvf redis-7.0.7.tar.gz
+
+cd redis-7.0.7
+
+make
+
+make install PREFIX=/usr/local/redis
 ```
 
 ## 启动
 
-### 方法1
+### 直接启动
 
 ```bash
-# systemctl start redis
+mkdir -p /etc/redis
 
-# ps -ef | grep redis
-redis    16021     1  0 14:10 ?        00:00:00 /usr/bin/redis-server 127.0.0.1:6379
-root     16074  3247  0 14:13 pts/2    00:00:00 grep --color=auto redis
+cp /usr/local/redis-7.0.7/redis.conf /etc/redis/6379.conf
+
+vim /etc/redis/6379.conf
 ```
 
-### 方法2
-
-```bash
-# /usr/local/bin/redis-server /etc/redis/6379.conf &
+```conf
+bind 0.0.0.0
 ```
 
-## 允许远程访问
+```bash
+/usr/local/redis/bin/redis-server /etc/redis/6379.conf
+```
 
-    若要支持远程访问调试，除了需要开放服务器端口号6379，还需要将配置文件中的bind 127.0.0.1注释掉
+### 通过守护进程方式启动
 
 ```bash
-# vim /etc/redis/6379.conf
-# bind 127.0.0.1
+mkdir -p /etc/redis
 
-protected-mode no
+cp /usr/local/redis-7.0.7/redis.conf /etc/redis/6379.conf
+
+vim /etc/redis/6379.conf
+```
+
+```conf
+bind 0.0.0.0
+
+daemonize yes
+```
+
+```bash
+/usr/local/redis/bin/redis-server /etc/redis/6379.conf
+```
+
+### 设置开机启动
+
+```bash
+vim /usr/local/redis-7.0.7/utils/redis_init_script
+```
+
+```
+REDISPORT=6379
+EXEC=/usr/local/redis/bin/redis-server
+CLIEXEC=/usr/local/redis/bin/redis-cli
+
+PIDFILE=/var/run/redis_${REDISPORT}.pid
+CONF="/etc/redis/${REDISPORT}.conf"
+```
+
+```bash
+cp /usr/local/redis-7.0.7/utils/redis_init_script /etc/init.d/redis
+
+chkconfig --add redis
+
+chkconfig redis on
+```
+
+其他命令:
+
+```bash
+systemctl enable redis
+
+systemctl start redis
+
+systemctl status redis
+
+systemctl stop redis
+
+systemctl disabled redis
+```
+
+## 配置环境变量
+
+```bash
+vim /etc/profile
+```
+
+```
+export REDIS_HOME=/usr/local/redis
+export PATH=$REDIS_HOME/bin:$PATH
+```
+
+```bash
+source /etc/profile
 ```
 
 ## 设置密码
 
 ```bash
+vim /usr/local/redis/bin/redis.conf
+```
+
+```conf
 masterauth 123456
 
 requirepass 123456
