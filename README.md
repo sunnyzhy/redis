@@ -1,7 +1,8 @@
 # redis
 
 ## redis 可视化工具
-https://github.com/uglide/RedisDesktopManager/releases
+
+[RedisInsight](https://redis.com/redis-enterprise/redis-insight/ 'RedisInsight')
 
 ## 设置 redis 密码
 ```bash
