@@ -27,17 +27,7 @@ blocked_clients:0
 ## 批量删除
 
 ```bash
-redis-cli -h [ip] -p [port] -a [password] -n [database] keys "prefix*" | xargs -r -n1 -t redis-cli -h [ip] -p [port] -a [password] -n [database] del
-```
-
-示例:
-
-```bash
-redis-cli -a password keys "prefix*" | xargs redis-cli -a password del
-
-redis-cli -a password keys "prefix*" | xargs -r redis-cli -a password del
-
-redis-cli -h 127.0.0.1 -p 3306 -a password -n 0 keys "prefix*" | xargs redis-cli -h 127.0.0.1 -p 3306 -a password -n 0 del
+redis-cli -h [ip] -p [port] -a [password] -n [database] --scan --pattern "prefix:*" | xargs -r -n1 -t redis-cli -h [ip] -p [port] -a [password] -n [database] del
 ```
 
 ```xargs``` 参数说明:
