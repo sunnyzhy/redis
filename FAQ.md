@@ -1,6 +1,6 @@
 # FAQ
 
-## 一  redis启动失败
+## redis启动失败
 
 ```bash
 Can't handle RDB format version 9
@@ -13,7 +13,7 @@ Fatal error loading the DB: Invalid argument. Exiting.
 - 解决方法
    删除 dump.rdb 文件，再启动 redis-server 。
 
-## 二 /var/run/redis_6379.pid exists, process is already running or crashed
+## /var/run/redis_6379.pid exists, process is already running or crashed
 
 ### 1 删除 pid 文件
 
@@ -32,7 +32,7 @@ dump.rdb
 # rm -rf dump.rdb
 ```
 
-## 三 MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.
+## MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk.
 
 ### 1 修改redis.conf
 
@@ -51,3 +51,21 @@ vm.overcommit_memory=1
 
 # sudo sysctl -p /etc/sysctl.conf
 ```
+
+## 停止 redis 服务报错：(error) NOAUTH Authentication required.
+
+```bash
+# service redis_6379 stop
+Stopping ...
+(error) NOAUTH Authentication required.
+Waiting for Redis to shutdown ...
+Waiting for Redis to shutdown ...
+Waiting for Redis to shutdown ...
+Waiting for Redis to shutdown ...
+Waiting for Redis to shutdown ...
+```
+
+解决方法：
+
+- 使用 ```ps -ef | grep redis``` 查看 pid，然后 ```kill -9 pid```，如果在 deamon 下还需要删除 pid 文件
+- ```redis-cli -a <password> -p <port> shutdown```，***【推荐】***
