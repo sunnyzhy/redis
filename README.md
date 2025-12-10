@@ -12,6 +12,14 @@ requirepass your_password
 # systemctl restart redis
 ```
 
+## 查看日志文件位置
+
+```bash
+# redis-cli
+
+127.0.0.1:6379> config get logfile
+```
+
 ## 缓存原理
 
 ![缓存原理](./images/redis-01.png '缓存原理')
